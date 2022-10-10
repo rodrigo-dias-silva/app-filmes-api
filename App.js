@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, SafeAreaView } from 'react-native';
+import { FlatList, StyleSheet, SafeAreaView, ActivityIndicator, View } from 'react-native';
 
 import Filmes from './src/Filmes';
 
@@ -8,6 +8,7 @@ import api from './src/services/api';
 
 export default function App() {
   const [filmes, setFilmes] = useState([]);
+  const [load, setLoad] = useState(true);
 
   useEffect(() => {
 
@@ -15,25 +16,38 @@ export default function App() {
       const response = await api.get('r-api/?api=filmes');
       // console.log(response.data);
 
-      setFilmes(response.data)
+      setFilmes(response.data);
+      setLoad(false);
     }
 
     loadFilmes();
 
-  }, [])
+  }, []);
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="auto" />
+  if (load) {
+    return (
+      <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+        <ActivityIndicator
+          color={'#121212'}
+          size={45}
+        />
 
-      <FlatList
-        data={filmes}
-        keyExtractor={item => String(item.id)}
-        renderItem={({ item }) => <Filmes data={item} />}
-      />
+      </View>
+    )
+  } else {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="auto" />
 
-    </SafeAreaView>
-  );
+        <FlatList
+          data={filmes}
+          keyExtractor={item => String(item.id)}
+          renderItem={({ item }) => <Filmes data={item} />}
+        />
+
+      </SafeAreaView>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
